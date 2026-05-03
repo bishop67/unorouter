@@ -37,10 +37,17 @@ export default async function ModelsPage(props: {
   const t = await getTranslations({ locale });
   const queryClient = getQueryClient();
 
-  const summary = await queryClient.fetchQuery({
-    queryKey: queryKeys.pricing(),
-    queryFn: async () => handleElysia(await rpc.api.pricing.get()),
-  });
+  const [summary] = await Promise.all([
+    queryClient.fetchQuery({
+      queryKey: queryKeys.pricing(),
+      queryFn: async () => handleElysia(await rpc.api.pricing.get()),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: queryKeys.modelStatusComponents(),
+      queryFn: async () =>
+        handleElysia(await rpc.api["model-status"].components.get()),
+    }),
+  ]);
   const topModels = summary.models
     .filter((m) => m.type === "text")
     .slice(0, 24);
