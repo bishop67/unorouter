@@ -1,3 +1,4 @@
+import { getDbPosts } from "@/components/pages/blog/db-posts";
 import { SETUP_GUIDES } from "@/components/pages/docs/setup-guides";
 import { localeUrl } from "@/i18n/navigation";
 import { BLOG_REGISTRY, DOCS_REGISTRY } from "@/i18n/registry";
@@ -7,6 +8,15 @@ import { rpc } from "@/lib/rpc";
 import { handleElysia, modelHref } from "@/lib/utils/base";
 import { serverLocale } from "@/lib/utils/server";
 import { getTranslations } from "next-intl/server";
+
+// Stored post text comes from the API: one line, and no character that could
+// open a link, an image or a heading in this file.
+function inlineMarkdown(text: string): string {
+  return text
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/[\\`*_[\]()<>!#|]/g, (ch) => `\\${ch}`);
+}
 
 export async function GET() {
   const locale = await serverLocale();
@@ -63,6 +73,14 @@ export async function GET() {
     const url = `${env.siteOrigin}${localeUrl(locale, { pathname: "/blog/[slug]", params: { slug: post.slug } })}`;
     lines.push(`- [${title}](${url}): ${note}`);
   }
+  // Same visibility rule as the blog pages; a dead database lists none.
+  const stored = await getDbPosts(locale);
+  for (const post of stored.posts) {
+    const url = `${env.siteOrigin}${localeUrl(locale, { pathname: "/blog/[slug]", params: { slug: post.slug } })}`;
+    lines.push(
+      `- [${inlineMarkdown(post.title)}](${url}): ${inlineMarkdown(post.description)}`,
+    );
+  }
   lines.push("");
 
   lines.push(`## ${t("FOOTER.PRODUCT")}`);
@@ -106,7 +124,10 @@ export async function GET() {
   return new Response(lines.join("\n"), {
     headers: {
       "content-type": "text/markdown; charset=utf-8",
-      "cache-control": "public, max-age=3600, s-maxage=3600",
+      // A registry-only fallback must not sit at the edge for an hour.
+      "cache-control": stored.complete
+        ? "public, max-age=3600, s-maxage=3600"
+        : "no-store",
     },
   });
 }

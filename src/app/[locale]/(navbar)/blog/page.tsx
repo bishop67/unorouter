@@ -1,5 +1,5 @@
 import { Blog } from "@/components/pages/blog/blog";
-import { getAllPostsSorted, translated } from "@/components/pages/blog/posts";
+import { card, getBlogListPosts } from "@/components/pages/blog/posts";
 import { APP_VALUES } from "@/lib/config/constants";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { getPageMetadata, ogBadge } from "@/lib/seo/metadata";
@@ -31,7 +31,9 @@ export default async function BlogPage(props: {
 }) {
   const locale = await serverLocale(props);
   const t = await getTranslations({ locale });
-  const posts = getAllPostsSorted();
+  // A registry-only fallback cannot be marked uncacheable from here; see the
+  // CLAUDE.md line on stored blog posts.
+  const { posts } = await getBlogListPosts(t, locale);
 
   return (
     <>
@@ -48,20 +50,17 @@ export default async function BlogPage(props: {
           name: t("BLOG.TITLE"),
           description: t("BLOG.META_DESC", APP_VALUES),
           url: localeUrl(locale, "/blog"),
-          items: posts.map((post) => {
-            const tr = translated(t, post);
-            return {
-              name: tr.title,
-              url: localeUrl(locale, {
-                pathname: "/blog/[slug]",
-                params: { slug: post.slug },
-              }),
-              description: tr.description,
-            };
-          }),
+          items: posts.map((post) => ({
+            name: post.title,
+            url: localeUrl(locale, {
+              pathname: "/blog/[slug]",
+              params: { slug: post.slug },
+            }),
+            description: post.description,
+          })),
         })}
       />
-      <Blog />
+      <Blog posts={posts.map(card)} />
     </>
   );
 }

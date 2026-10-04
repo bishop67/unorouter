@@ -1,30 +1,17 @@
 import { TypographicSmokeLazy } from "@/components/ui/fluid-smoke/typographic-smoke-lazy";
 import { ScrambleText } from "@/components/elements/fx/scramble-text";
 import { BlogList } from "@/components/pages/blog/blog-list";
-import { getAllPostsSorted, translated } from "@/components/pages/blog/posts";
+import type { BlogListPost } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { serverLocale } from "@/lib/utils/server";
 import { getTranslations } from "next-intl/server";
 import { Icon } from "@/components/ui/icon";
 
-export async function Blog() {
+// The page loads the posts once for its JSON-LD and this list.
+export async function Blog(props: { posts: BlogListPost[] }) {
   const locale = await serverLocale();
   const t = await getTranslations();
-  const posts = getAllPostsSorted();
-
-  const listPosts = posts.map((post) => {
-    const tr = translated(t, post);
-    return {
-      slug: post.slug,
-      date: post.date,
-      tags: post.tags,
-      category: post.category,
-      wordCount: post.wordCount,
-      heroImage: post.heroImage,
-      title: tr.title,
-      description: tr.description,
-    };
-  });
+  const listPosts = props.posts;
 
   return (
     <div className="mx-auto max-w-5xl px-6 pb-16">
@@ -68,7 +55,7 @@ export async function Blog() {
         </div>
       </section>
 
-      {posts.length === 0 ? (
+      {listPosts.length === 0 ? (
         <p className="text-muted-foreground py-24 text-center">
           {t("BLOG.EMPTY")}
         </p>

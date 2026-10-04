@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SmartImage } from "@/components/ui/smart-image";
 import { useBlogFilter } from "@/hooks/ui/use-blog-filter-hook";
 import { Link } from "@/i18n/navigation";
 import { BLOG_CATEGORIES, getBlogTheme } from "@/lib/config/blog-categories";
@@ -12,7 +13,6 @@ import { estimateReadingMinutes } from "@/components/pages/blog/reading-time";
 import { cn } from "@/lib/utils";
 import { dayjs } from "@/lib/utils/format/date";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { upper } from "@/lib/utils/base";
 
 interface BlogListProps {
@@ -174,7 +174,7 @@ export function BlogList(props: BlogListProps) {
                           theme.border,
                         )}
                       >
-                        <Image
+                        <SmartImage
                           src={post.heroImage}
                           alt=""
                           fill

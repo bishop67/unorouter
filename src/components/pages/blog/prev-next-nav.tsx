@@ -1,14 +1,13 @@
 import { Link } from "@/i18n/navigation";
 import { getBlogTheme } from "@/lib/config/blog-categories";
-import type { BlogPost } from "@/lib/types";
+import type { BlogListPost } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import { Icon } from "@/components/ui/icon";
-import { translated } from "./posts";
 
 interface PrevNextNavProps {
-  prev: BlogPost | null;
-  next: BlogPost | null;
+  prev: BlogListPost | null;
+  next: BlogListPost | null;
 }
 
 export async function PrevNextNav(props: PrevNextNavProps) {
@@ -22,7 +21,7 @@ export async function PrevNextNav(props: PrevNextNavProps) {
           post={props.prev}
           label={t("BLOG.PREV_POST")}
           direction="prev"
-          title={translated(t, props.prev).title}
+          title={props.prev.title}
         />
       ) : (
         <div />
@@ -32,7 +31,7 @@ export async function PrevNextNav(props: PrevNextNavProps) {
           post={props.next}
           label={t("BLOG.NEXT_POST")}
           direction="next"
-          title={translated(t, props.next).title}
+          title={props.next.title}
         />
       ) : (
         <div />
@@ -42,7 +41,7 @@ export async function PrevNextNav(props: PrevNextNavProps) {
 }
 
 function PostLink(props: {
-  post: BlogPost;
+  post: BlogListPost;
   label: string;
   direction: "prev" | "next";
   title: string;
