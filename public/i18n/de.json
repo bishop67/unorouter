@@ -4314,7 +4314,13 @@
     "CARD_IMPORT_JOB_GONE": "Dieser Import ist abgelaufen, bevor er fertig war. Sende den Link erneut.",
     "CARD_IMPORT_UNAVAILABLE": "Der Importdienst ist gerade nicht erreichbar. Bitte versuche es in ein paar Minuten erneut.",
     "CARD_FILE_INVALID": "Diese Datei ist kein Karten-Export.",
-    "GROUP_CYCLE": "Eine Gruppe kann nicht in sich selbst verschoben werden."
+    "GROUP_CYCLE": "Eine Gruppe kann nicht in sich selbst verschoben werden.",
+    "BLOG_PUBLISHING_DISABLED": "Das Veröffentlichen von Blogbeiträgen ist auf diesem Server nicht eingerichtet.",
+    "BLOG_NOT_A_PUBLISHER": "Dieses Konto darf keine Blogbeiträge veröffentlichen.",
+    "BLOG_SLUG_TAKEN": "Ein eingebauter Beitrag verwendet diesen Slug bereits.",
+    "BLOG_PUBLISHER_CHECK_FAILED": "Der Herausgeber konnte gerade nicht überprüft werden. Versuche es gleich noch einmal.",
+    "BLOG_UNKNOWN_LOCALE": "Unbekannte Übersetzungssprache: {locale}",
+    "BLOG_INVALID_DATE": "{date} ist kein gültiges Kalenderdatum."
   },
   "BADGE": {
     "TOKENS_SERVED": "Tokens verarbeitet",

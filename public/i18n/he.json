@@ -4314,7 +4314,13 @@
     "CARD_IMPORT_JOB_GONE": "הייבוא פג לפני שהסתיים. שלח את הקישור שוב.",
     "CARD_IMPORT_UNAVAILABLE": "שירות הייבוא אינו זמין כרגע. נסה שוב בעוד כמה דקות.",
     "CARD_FILE_INVALID": "הקובץ הזה אינו ייצוא של כרטיס.",
-    "GROUP_CYCLE": "לא ניתן להעביר קבוצה לתוך עצמה."
+    "GROUP_CYCLE": "לא ניתן להעביר קבוצה לתוך עצמה.",
+    "BLOG_PUBLISHING_DISABLED": "פרסום בבלוג אינו מוגדר בשרת זה.",
+    "BLOG_NOT_A_PUBLISHER": "לחשבון זה אין הרשאה לפרסם פוסטים בבלוג.",
+    "BLOG_SLUG_TAKEN": "פוסט מובנה כבר משתמש ב-slug הזה.",
+    "BLOG_PUBLISHER_CHECK_FAILED": "לא ניתן לאמת את המפרסם כרגע. נסו שוב בעוד רגע.",
+    "BLOG_UNKNOWN_LOCALE": "שפת תרגום לא מוכרת: {locale}",
+    "BLOG_INVALID_DATE": "{date} אינו תאריך קיים בלוח השנה."
   },
   "BADGE": {
     "TOKENS_SERVED": "טוקנים שהוגשו",

@@ -4314,7 +4314,13 @@
     "CARD_IMPORT_JOB_GONE": "Esa importación caducó antes de terminar. Envía el enlace de nuevo.",
     "CARD_IMPORT_UNAVAILABLE": "El servicio de importación no está disponible ahora mismo. Inténtalo de nuevo en unos minutos.",
     "CARD_FILE_INVALID": "Ese archivo no es una exportación de tarjeta.",
-    "GROUP_CYCLE": "Un grupo no puede moverse dentro de sí mismo."
+    "GROUP_CYCLE": "Un grupo no puede moverse dentro de sí mismo.",
+    "BLOG_PUBLISHING_DISABLED": "La publicación del blog no está configurada en este servidor.",
+    "BLOG_NOT_A_PUBLISHER": "Esta cuenta no tiene permiso para publicar entradas del blog.",
+    "BLOG_SLUG_TAKEN": "Una entrada integrada ya usa este slug.",
+    "BLOG_PUBLISHER_CHECK_FAILED": "No se pudo verificar al editor en este momento. Inténtalo de nuevo en un momento.",
+    "BLOG_UNKNOWN_LOCALE": "Idioma de traducción desconocido: {locale}",
+    "BLOG_INVALID_DATE": "{date} no es una fecha del calendario."
   },
   "BADGE": {
     "TOKENS_SERVED": "tokens procesados",

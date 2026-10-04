@@ -10,6 +10,7 @@ import { serverEnv } from "@/server/env";
 import { aiDomainRoute } from "@/server/ai/route";
 import { authDomainRoute } from "@/server/auth/route";
 import { billingDomainRoute } from "@/server/billing/route";
+import { blogDomainRoute } from "@/server/blog/route";
 import { modelsDomainRoute } from "@/server/models/route";
 import { opsDomainRoute } from "@/server/ops/route";
 import { fromTypes, openapi } from "@elysiajs/openapi";
@@ -49,7 +50,7 @@ export const app = new Elysia({ prefix: "/api" })
         info: {
           title: `${APP_VALUES.appName} BFF`,
           version: "1.0.0",
-          description: `Backend-for-frontend for ${APP_VALUES.appName}. Pass-through verticals (auth, billing, token, affiliate, logs, pricing, dashboard, stats, settings, badge) proxy the upstream relay. The chat vertical owns local state and streaming logic.`,
+          description: `Backend-for-frontend for ${APP_VALUES.appName}. Pass-through verticals (auth, billing, token, affiliate, logs, pricing, dashboard, stats, settings, badge) proxy the upstream relay. The chat vertical owns local state and streaming logic; the blog vertical stores posts published through the API.`,
           contact: {
             name: APP_VALUES.appName,
             url: env.siteOrigin,
@@ -96,6 +97,7 @@ export const app = new Elysia({ prefix: "/api" })
   .use(aiDomainRoute)
   .use(authDomainRoute)
   .use(billingDomainRoute)
+  .use(blogDomainRoute)
   .use(modelsDomainRoute)
   .use(opsDomainRoute);
 

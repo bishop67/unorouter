@@ -4314,7 +4314,13 @@
     "CARD_IMPORT_JOB_GONE": "That import expired before it finished. Please submit the link again.",
     "CARD_IMPORT_UNAVAILABLE": "The import service is unreachable right now. Please try again in a few minutes.",
     "CARD_FILE_INVALID": "That file is not a card export.",
-    "GROUP_CYCLE": "A group cannot be moved into itself."
+    "GROUP_CYCLE": "A group cannot be moved into itself.",
+    "BLOG_PUBLISHING_DISABLED": "Blog publishing is not configured on this server.",
+    "BLOG_NOT_A_PUBLISHER": "This account is not allowed to publish blog posts.",
+    "BLOG_SLUG_TAKEN": "A built-in post already uses this slug.",
+    "BLOG_PUBLISHER_CHECK_FAILED": "Could not verify the publisher right now. Try again in a moment.",
+    "BLOG_UNKNOWN_LOCALE": "Unknown translation locale: {locale}",
+    "BLOG_INVALID_DATE": "{date} is not a calendar date."
   },
   "BADGE": {
     "TOKENS_SERVED": "tokens served",

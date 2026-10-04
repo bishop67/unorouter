@@ -88,4 +88,5 @@ Four guards in `src/lib/db/client/`, each commented at the site with its data-lo
 - `src/proxy.ts` stays thin. Edge cacheability of anonymous pages is decided by Cloudflare rules generated from `pathnames` (sops file above), not headers here. The matcher omits `.js` on purpose, so `.js` files in `public/` 404 (hence `janitor-*.js.txt`).
 - `privateRoutes` in `src/i18n/routing.ts` is the single source for robots Disallow and sitemap exclusion; robots emits end-anchored pairs.
 - SEO dates are static registry data (`GUIDE_DATES`); setup guides are one route over `SETUP_GUIDES`, `DOCS_REGISTRY` derives from it.
+- `/api/blog/posts`: anonymous reads never call the gateway, only `?drafts=1` and writes check the publisher. A write purges only its own URLs, `/blog`, the feeds, `/sitemap.xml` and `/llms.txt`, and only when the old or new version is public. Other posts' prev/next and related cards, and a scheduled post going live on its date, wait for the edge TTL.
 - Discord reward figures are fetched from the bot at render; `FALLBACK` in `rewards.ts` is not where payouts change.

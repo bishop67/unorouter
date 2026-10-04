@@ -8,7 +8,7 @@ Surfaces:
 - **Chat**: RisuAI-class roleplay client. Catalog models through a same-origin proxy (the upstream token never reaches the browser) or bring your own OpenAI-compatible endpoint (browser talks to it directly). Characters, lorebooks, presets, loadouts, Lua triggers, sandboxed JS plugins, group chats, peer-to-peer rooms, in-chat image generation, SillyTavern card import.
 - **AI API Model Tester**: probes an endpoint with nonce-tagged prompts to tell whether it serves the model it claims; public rankings leaderboard with server-issued (unforgeable) probe mode.
 
-Chat and tester state live in ONE SQLocal/OPFS database per device in the browser; that copy is the only copy. Everything works for guests and offline. Cross-device transfer is export/import. The server DB (Turso/libSQL) holds only the public rankings.
+Chat and tester state live in ONE SQLocal/OPFS database per device in the browser; that copy is the only copy. Everything works for guests and offline. Cross-device transfer is export/import. The server DB (Turso/libSQL) holds only the public rankings and blog posts published through the API.
 
 ## Stack
 
@@ -18,7 +18,7 @@ Next.js 16, React 19 compiler, Tailwind v4, shadcn/ui, Jotai, React Query 5, nuq
 
 ```
 src/app/[locale]/(auth|chat|docs|image|navbar|room|sidebar|status)   route groups
-src/server/{ai,auth,billing,models,ops}                               BFF domains: route.ts -> *.service.ts
+src/server/{ai,auth,billing,blog,models,ops}                          BFF domains: route.ts -> *.service.ts
 src/lib/ai/chat                                                       isomorphic chat engine (runs in the browser)
 src/lib/db/{client,server,schema}                                     SQLocal + libSQL, shared schema
 public/i18n                                                           18 locale files
@@ -28,7 +28,7 @@ k8s/                                                                  ArgoCD-man
 ## Develop
 
 ```bash
-cp .env.example .env    # SYSTEM_ACCESS_TOKEN and SESSION_SECRET (>= 32 chars) are required; Turso, Tavily, Runware optional
+cp .env.example .env    # SYSTEM_ACCESS_TOKEN and SESSION_SECRET (>= 32 chars) are required; Turso, Tavily, Runware, blog publishing optional
 bun install
 bun dev:log             # dev server, logs to /tmp/next.log
 bun typecheck && bun lint

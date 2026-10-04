@@ -4314,7 +4314,13 @@
     "CARD_IMPORT_JOB_GONE": "Ten import wygasł przed zakończeniem. Wyślij link ponownie.",
     "CARD_IMPORT_UNAVAILABLE": "Usługa importu jest teraz niedostępna. Spróbuj ponownie za kilka minut.",
     "CARD_FILE_INVALID": "Ten plik nie jest eksportem karty.",
-    "GROUP_CYCLE": "Grupy nie można przenieść do niej samej."
+    "GROUP_CYCLE": "Grupy nie można przenieść do niej samej.",
+    "BLOG_PUBLISHING_DISABLED": "Publikowanie na blogu nie jest skonfigurowane na tym serwerze.",
+    "BLOG_NOT_A_PUBLISHER": "To konto nie może publikować wpisów na blogu.",
+    "BLOG_SLUG_TAKEN": "Ten slug jest już używany przez wbudowany wpis.",
+    "BLOG_PUBLISHER_CHECK_FAILED": "Nie udało się teraz zweryfikować wydawcy. Spróbuj ponownie za chwilę.",
+    "BLOG_UNKNOWN_LOCALE": "Nieznany język tłumaczenia: {locale}",
+    "BLOG_INVALID_DATE": "{date} nie jest datą z kalendarza."
   },
   "BADGE": {
     "TOKENS_SERVED": "obsłużone tokeny",
