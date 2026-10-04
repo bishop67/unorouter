@@ -1,11 +1,16 @@
-import { getAllPostsSorted, translated } from "@/components/pages/blog/posts";
+import { getBlogListPosts } from "@/components/pages/blog/posts";
 import { APP_VALUES } from "@/lib/config/constants";
 import { env } from "@/lib/config/env";
-import { getSeoTimestamps } from "@/lib/seo/metadata";
 import { dayjs } from "@/lib/utils/format/date";
 import { serverLocale } from "@/lib/utils/server";
 import { Feed } from "feed";
 import { getTranslations } from "next-intl/server";
+
+// feed wraps titles and descriptions in CDATA, and its xml-js escapes only the
+// FIRST "]]>": a stored title with two would end the section and inject markup.
+function cdataSafe(text: string): string {
+  return text.replaceAll("]]>", "]]&gt;");
+}
 
 export async function GET(
   _req: Request,
@@ -13,7 +18,7 @@ export async function GET(
 ) {
   const locale = await serverLocale(props);
   const t = await getTranslations({ locale });
-  const posts = getAllPostsSorted();
+  const { posts, complete } = await getBlogListPosts(t, locale);
   const siteUrl = `${env.siteOrigin}/${locale}/blog`;
 
   const feed = new Feed({
@@ -27,16 +32,14 @@ export async function GET(
   });
 
   for (const post of posts) {
-    const ts = getSeoTimestamps(`blog/${post.slug}`);
     const url = `${env.siteOrigin}/${locale}/blog/${post.slug}`;
-    const { title, description, author } = translated(t, post);
     feed.addItem({
-      title,
+      title: cdataSafe(post.title),
       id: url,
       link: url,
-      description,
-      author: [{ name: author }],
-      date: dayjs(ts?.modified ?? post.date).toDate(),
+      description: cdataSafe(post.description),
+      author: [{ name: post.author }],
+      date: post.modified,
       category: post.tags.map((tag) => ({ name: tag })),
     });
   }
@@ -44,7 +47,10 @@ export async function GET(
   return new Response(feed.rss2(), {
     headers: {
       "Content-Type": "application/rss+xml; charset=utf-8",
-      "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=60",
+      // A registry-only fallback must not sit at the edge for an hour.
+      "Cache-Control": complete
+        ? "public, s-maxage=3600, stale-while-revalidate=60"
+        : "no-store",
     },
   });
 }

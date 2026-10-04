@@ -1,3 +1,4 @@
+import { getDbPosts } from "@/components/pages/blog/db-posts";
 import { COMPARE_PAIRS } from "@/components/pages/navbar/models/compare/compare-pairs";
 import { getPathname } from "@/i18n/navigation";
 import {
@@ -20,11 +21,14 @@ import { modelSlug, vendorSlug } from "@/lib/utils/base";
 import { dayjs } from "@/lib/utils/format/date";
 import { getCatalog } from "@/server/models/pricing/pricing.service";
 import type { MetadataRoute } from "next";
+import type { Locale } from "next-intl";
 
 type EntryOptions = {
   priority?: number;
   changeFrequency?: MetadataRoute.Sitemap[number]["changeFrequency"];
   lastModified?: Date | SeoTimestampSlug;
+  // Locales the page has its own text in; the rest canonicalise elsewhere.
+  locales?: readonly Locale[];
 };
 
 const privateSet = new Set<string>([
@@ -55,7 +59,7 @@ function localizedEntries(
 
   // No per-URL hreflang alternates: 18 locales pushed this past Google's 50MB
   // limit (53MB, ~416k xhtml:link entries) and it stopped being read.
-  return routing.locales.map((locale) => ({
+  return (options.locales ?? routing.locales).map((locale) => ({
     url: `${env.siteOrigin}${getPathname({ locale, href })}`,
     lastModified: resolved,
     ...(options.priority !== undefined && { priority: options.priority }),
@@ -89,6 +93,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error(
       "[sitemap] pricing returned no models; model pages omitted from sitemap",
     );
+
+  // Listed once per locale the post has text in; the visibility rule is the
+  // service's, the same one the pages apply. A metadata route cannot set its
+  // own Cache-Control, so a failed read is only logged; the purge on the next
+  // write or the edge TTL brings the posts back.
+  const { posts: storedPosts } = await getDbPosts(routing.defaultLocale);
 
   const modelNames = [
     ...new Set((pricing?.models ?? []).map((m) => m.model_name)),
@@ -132,6 +142,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           priority: post.priority,
           changeFrequency: post.changeFrequency,
           lastModified: `blog/${post.slug}`,
+        },
+      ),
+    ),
+    ...storedPosts.flatMap((post) =>
+      localizedEntries(
+        { pathname: "/blog/[slug]", params: { slug: post.slug } },
+        {
+          priority: 0.7,
+          changeFrequency: "monthly",
+          lastModified: post.modified,
+          locales: post.locales,
         },
       ),
     ),

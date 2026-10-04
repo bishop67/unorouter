@@ -3,6 +3,7 @@ import { createTOC } from "@/components/layout/docs/toc-utils";
 import { Badge } from "@/components/ui/badge";
 import { TypographicSmokeLazy } from "@/components/ui/fluid-smoke/typographic-smoke-lazy";
 import { Icon } from "@/components/ui/icon";
+import { SmartImage } from "@/components/ui/smart-image";
 import { Link } from "@/i18n/navigation";
 import { getBlogTheme } from "@/lib/config/blog-categories";
 import { APP_VALUES } from "@/lib/config/constants";
@@ -12,46 +13,49 @@ import { serverLocale } from "@/lib/utils/server";
 import { dayjs } from "@/lib/utils/format/date";
 import type { TOCItemType } from "fumadocs-core/toc";
 import { getTranslations } from "next-intl/server";
-import Image from "next/image";
-import { notFound } from "next/navigation";
 import {
   faqI18nKey,
   methodI18nKey,
   tldrI18nKey,
   getAdjacentPosts,
-  getPost,
+  getBlogListPosts,
   getRelatedPosts,
-  translated,
+  type ResolvedBlogPost,
 } from "./posts";
+import { PostMarkdown } from "./post-markdown";
 import { PrevNextNav } from "./prev-next-nav";
 import { RelatedPosts } from "./related-posts";
 import { upper } from "@/lib/utils/base";
 
 interface BlogPostProps {
-  slug: string;
+  resolved: ResolvedBlogPost;
 }
 
 export async function BlogPost(props: BlogPostProps) {
   const locale = await serverLocale();
-  const post = getPost(props.slug);
-  if (!post) notFound();
-
   const t = await getTranslations();
-  const tr = translated(t, post);
+  const { post, registry, stored, contentLocale } = props.resolved;
+
   const theme = getBlogTheme(post.category);
-  const faqKey = faqI18nKey(post);
-  const tldrKey = tldrI18nKey(post);
-  const methodKey = methodI18nKey(post);
+  const faqKey = registry && faqI18nKey(registry);
+  const tldrKey = registry && tldrI18nKey(registry);
+  const methodKey = registry && methodI18nKey(registry);
   const minutes = estimateReadingMinutes(post.wordCount);
-  const adjacent = getAdjacentPosts(post.slug);
-  const related = getRelatedPosts(post.slug);
+  const { posts } = await getBlogListPosts(t, locale);
+  const adjacent = getAdjacentPosts(posts, post.slug);
+  const related = getRelatedPosts(posts, post);
   const categoryLabel = t(`BLOG.CATEGORY.${upper(post.category)}`);
 
-  const tocItems: TOCItemType[] = post.headings.map((h) => ({
-    url: `#${h.id}`,
-    title: t(`${post.i18nKey}.${h.i18nLeaf}` as Parameters<typeof t>[0]),
-    depth: h.level,
-  }));
+  // Stored posts carry no heading registry, so they render without a TOC.
+  const tocItems: TOCItemType[] = registry
+    ? registry.headings.map((h) => ({
+        url: `#${h.id}`,
+        title: t(
+          `${registry.i18nKey}.${h.i18nLeaf}` as Parameters<typeof t>[0],
+        ),
+        depth: h.level,
+      }))
+    : [];
   const toc = createTOC(tocItems, t("BLOG.ON_THIS_PAGE"));
 
   const formattedDate = new Intl.DateTimeFormat(locale, {
@@ -78,9 +82,9 @@ export async function BlogPost(props: BlogPostProps) {
           <section className="relative overflow-hidden">
             {post.heroImage ? (
               <div className="relative mx-auto mt-8 aspect-21/9 w-full overflow-hidden rounded-2xl">
-                <Image
+                <SmartImage
                   src={post.heroImage}
-                  alt={tr.title}
+                  alt={post.title}
                   fill
                   sizes="(min-width: 1024px) 1024px, 100vw"
                   className="object-cover"
@@ -124,10 +128,10 @@ export async function BlogPost(props: BlogPostProps) {
               </div>
 
               <h1 className="text-foreground mb-5 text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-                {tr.title}
+                {post.title}
               </h1>
               <p className="text-muted-foreground max-w-2xl text-[15px] leading-relaxed">
-                {tr.description}
+                {post.description}
               </p>
 
               <div className="text-muted-foreground mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 font-mono text-xs tracking-wider uppercase">
@@ -135,7 +139,7 @@ export async function BlogPost(props: BlogPostProps) {
                 <span>·</span>
                 <span>{t("BLOG.READ_TIME", { minutes })}</span>
                 <span>·</span>
-                <span>{t("BLOG.BY_AUTHOR", { author: tr.author })}</span>
+                <span>{t("BLOG.BY_AUTHOR", { author: post.author })}</span>
               </div>
 
               {post.tags.length > 0 && (
@@ -160,7 +164,15 @@ export async function BlogPost(props: BlogPostProps) {
                 {t(`${tldrKey}.TLDR`, APP_VALUES)}
               </p>
             )}
-            <post.Component />
+            {registry ? (
+              <registry.Component />
+            ) : (
+              <PostMarkdown
+                slug={post.slug}
+                locale={contentLocale}
+                body={stored.body}
+              />
+            )}
             {methodKey && (
               <p className="text-muted-foreground border-border mt-10 border-t pt-6 text-sm">
                 {t(`${methodKey}.METHOD`, APP_VALUES)}

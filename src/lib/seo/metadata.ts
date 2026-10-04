@@ -20,9 +20,12 @@ import {
   type Theme,
 } from "../validation/badge";
 
-function buildAlternateLanguages(href: Pathname): Record<string, string> {
+function buildAlternateLanguages(
+  href: Pathname,
+  locales: readonly Locale[],
+): Record<string, string> {
   const languages: Record<string, string> = {};
-  for (const loc of routing.locales) {
+  for (const loc of locales) {
     languages[loc] = getPathname({ locale: loc, href });
   }
   languages["x-default"] = getPathname({ locale: LOCALES[0], href });
@@ -54,6 +57,10 @@ type MetadataParams = {
   locale: Locale;
   href: Pathname;
   canonicalHref?: Pathname;
+  // Locales the page has its own text in (default: all). Any other locale
+  // renders the fallback text, so it canonicalises to the default locale's URL
+  // and is left out of the hreflang alternates.
+  locales?: readonly Locale[];
   title: string;
   description: string;
   keywords: string;
@@ -87,8 +94,11 @@ export async function pageMetadata(opts: {
 
 export function getPageMetadata(params: MetadataParams): Metadata {
   const canonicalTarget = params.canonicalHref ?? params.href;
+  const locales = params.locales ?? routing.locales;
   const canonicalPath = getPathname({
-    locale: params.locale,
+    locale: locales.includes(params.locale)
+      ? params.locale
+      : routing.defaultLocale,
     href: canonicalTarget,
   });
   const shouldIndex = params.robots ?? true;
@@ -122,7 +132,7 @@ export function getPageMetadata(params: MetadataParams): Metadata {
     }),
     alternates: {
       canonical: canonicalPath,
-      languages: buildAlternateLanguages(canonicalTarget),
+      languages: buildAlternateLanguages(canonicalTarget, locales),
       types: {
         "application/rss+xml": `/${params.locale}/blog/feed.xml`,
       },

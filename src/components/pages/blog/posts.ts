@@ -12,12 +12,17 @@ import { AiModelVerifierContent } from "@/components/pages/blog/posts/2026-09-03
 import { BLOG_REGISTRY, type BlogSlug } from "@/i18n/registry";
 import { APP_VALUES } from "@/lib/config/constants";
 import type {
+  BlogListPost,
   BlogPost,
   FaqI18nKey,
   MethodI18nKey,
   TldrI18nKey,
 } from "@/lib/types";
-import type { useTranslations } from "next-intl";
+import { getDbPost, getDbPosts } from "@/components/pages/blog/db-posts";
+import { routing } from "@/i18n/routing";
+import { getSeoTimestamps } from "@/lib/seo/metadata";
+import { dayjs } from "@/lib/utils/format/date";
+import type { Locale, useTranslations } from "next-intl";
 import type { ComponentType } from "react";
 
 const CUSTOM_COMPONENTS: Partial<Record<BlogSlug, ComponentType>> = {
@@ -91,23 +96,25 @@ export function getPost(slug: string): BlogPost<BlogSlug> | undefined {
   return POSTS.find((p) => p.slug === slug);
 }
 
-export function getAdjacentPosts(slug: string): {
-  prev: BlogPost<BlogSlug> | null;
-  next: BlogPost<BlogSlug> | null;
-} {
-  const sorted = getAllPostsSorted();
-  const index = sorted.findIndex((p) => p.slug === slug);
+// Over the merged list, so stored posts get neighbours and related posts too.
+export function getAdjacentPosts(
+  posts: BlogListPost[],
+  slug: string,
+): { prev: BlogListPost | null; next: BlogListPost | null } {
+  const index = posts.findIndex((p) => p.slug === slug);
   if (index === -1) return { prev: null, next: null };
   return {
-    next: index > 0 ? sorted[index - 1]! : null,
-    prev: index < sorted.length - 1 ? sorted[index + 1]! : null,
+    next: index > 0 ? posts[index - 1]! : null,
+    prev: index < posts.length - 1 ? posts[index + 1]! : null,
   };
 }
 
-export function getRelatedPosts(slug: string, limit = 3): BlogPost<BlogSlug>[] {
-  const current = getPost(slug);
-  if (!current) return [];
-  const others = POSTS.filter((p) => p.slug !== slug);
+export function getRelatedPosts(
+  posts: BlogListPost[],
+  current: BlogListPost,
+  limit = 3,
+): BlogListPost[] {
+  const others = posts.filter((p) => p.slug !== current.slug);
 
   const sameCategory = others.filter((p) => p.category === current.category);
   const byTag = others.filter(
@@ -121,13 +128,98 @@ export function getRelatedPosts(slug: string, limit = 3): BlogPost<BlogSlug>[] {
     .slice(0, limit);
 }
 
-export function translated(
-  t: ReturnType<typeof useTranslations<never>>,
-  post: BlogPost,
-) {
+type Translator = ReturnType<typeof useTranslations<never>>;
+
+export function translated(t: Translator, post: BlogPost) {
   return {
     title: t(`${post.i18nKey}.TITLE`, APP_VALUES),
     description: t(`${post.i18nKey}.DESCRIPTION`, APP_VALUES),
     author: t(`${post.i18nKey}.AUTHOR`, APP_VALUES),
+  };
+}
+
+// Exactly what the client list receives: author and dates stay on the server.
+export function card(post: BlogListPost): BlogListPost {
+  return {
+    slug: post.slug,
+    date: post.date,
+    tags: post.tags,
+    category: post.category,
+    wordCount: post.wordCount,
+    heroImage: post.heroImage,
+    title: post.title,
+    description: post.description,
+  };
+}
+
+// A list entry with what the feed and JSON-LD need on top of the card.
+export type BlogIndexPost = BlogListPost & { author: string; modified: Date };
+
+function registryEntry(t: Translator, post: BlogPost<BlogSlug>): BlogIndexPost {
+  const tr = translated(t, post);
+  return {
+    ...card({ ...post, ...tr }),
+    author: tr.author,
+    modified: dayjs
+      .utc(getSeoTimestamps(`blog/${post.slug}`)?.modified ?? post.date)
+      .toDate(),
+  };
+}
+
+// Registry and stored posts, newest first. Ties keep registry order.
+// complete=false: the stored posts could not be read and are missing.
+export async function getBlogListPosts(
+  t: Translator,
+  locale: Locale,
+): Promise<{ posts: BlogIndexPost[]; complete: boolean }> {
+  const stored = await getDbPosts(locale);
+  return {
+    posts: [
+      ...getAllPostsSorted().map((post) => registryEntry(t, post)),
+      ...stored.posts,
+    ].sort((a, b) => b.date.localeCompare(a.date)),
+    complete: stored.complete,
+  };
+}
+
+export type ResolvedBlogPost = {
+  post: BlogIndexPost;
+  published: string;
+  locales: readonly Locale[];
+  // The locale of the text shown: the page's, or the base text's when the
+  // stored post has no translation for it.
+  contentLocale: Locale;
+} & (
+  | { registry: BlogPost<BlogSlug>; stored: null }
+  | { registry: null; stored: { body: string } }
+);
+
+// Registry first: a stored post can never shadow a post that ships in code.
+export async function resolveBlogPost(
+  t: Translator,
+  locale: Locale,
+  slug: string,
+): Promise<ResolvedBlogPost | null> {
+  const registry = getPost(slug);
+  if (registry)
+    return {
+      post: registryEntry(t, registry),
+      published:
+        getSeoTimestamps(`blog/${registry.slug}`)?.published ?? registry.date,
+      locales: routing.locales,
+      contentLocale: locale,
+      registry,
+      stored: null,
+    };
+  const stored = await getDbPost(slug, locale);
+  if (!stored) return null;
+  const { body, locales, contentLocale, ...post } = stored;
+  return {
+    post,
+    published: stored.date,
+    locales,
+    contentLocale,
+    registry: null,
+    stored: { body },
   };
 }
