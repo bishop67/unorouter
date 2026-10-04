@@ -10,6 +10,8 @@ import * as schema from "../schema";
 
 let _db: LibSQLDatabase<typeof schema> | null = null;
 let _client: Client | null = null;
+// Settles (never rejects) once the boot migration is done or has given up.
+let _migrated: Promise<void> = Promise.resolve();
 
 export function getDb(): LibSQLDatabase<typeof schema> {
   if (_db) return _db;
@@ -25,7 +27,7 @@ export function getDb(): LibSQLDatabase<typeof schema> {
   _db = drizzle(_client, { schema });
 
   if (!serverEnv.standalone) {
-    migrate(_db, { migrationsFolder: resolve("drizzle/server") })
+    _migrated = migrate(_db, { migrationsFolder: resolve("drizzle/server") })
       .catch((e) => {
         if (isAlreadyExistsError(e)) {
           logger.warn("Migration baseline already applied; skipping", {
@@ -54,6 +56,15 @@ export function getDb(): LibSQLDatabase<typeof schema> {
   }
 
   return _db;
+}
+
+// For readers of a table a pending migration may still be creating (the blog
+// posts): getDb() alone returns before migrate() has run. Other callers keep
+// plain getDb(), which never waited.
+export async function getMigratedDb(): Promise<LibSQLDatabase<typeof schema>> {
+  const db = getDb();
+  await _migrated;
+  return db;
 }
 
 function isAlreadyExistsError(e: unknown): boolean {
