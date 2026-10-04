@@ -4314,7 +4314,13 @@
     "CARD_IMPORT_JOB_GONE": "該匯入在完成前已過期。請重新提交連結。",
     "CARD_IMPORT_UNAVAILABLE": "匯入服務目前無法連線。請在幾分鐘後重試。",
     "CARD_FILE_INVALID": "該檔案不是卡片匯出檔。",
-    "GROUP_CYCLE": "群組不能移動到其自身內部。"
+    "GROUP_CYCLE": "群組不能移動到其自身內部。",
+    "BLOG_PUBLISHING_DISABLED": "此伺服器未設定部落格發布。",
+    "BLOG_NOT_A_PUBLISHER": "此帳號無權發布部落格文章。",
+    "BLOG_SLUG_TAKEN": "此 slug 已被內建文章使用。",
+    "BLOG_PUBLISHER_CHECK_FAILED": "暫時無法驗證發布者，請稍後再試。",
+    "BLOG_UNKNOWN_LOCALE": "未知的翻譯語言：{locale}",
+    "BLOG_INVALID_DATE": "{date} 不是有效的日曆日期。"
   },
   "BADGE": {
     "TOKENS_SERVED": "已服務 tokens",

@@ -22,6 +22,11 @@ declare namespace NodeJS {
     TAVILY_API_KEY?: string;
     GUEST_API_KEY?: string;
 
+    BLOG_PUBLISH_TOKEN?: string;
+    BLOG_PUBLISHER_IDS?: string;
+    CLOUDFLARE_PURGE_TOKEN?: string;
+    CLOUDFLARE_ZONE_ID?: string;
+
     GOOGLE_SITE_VERIFICATION?: string;
 
     WEB_BOT_AUTH_PUBLIC_JWKS?: string;

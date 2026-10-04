@@ -4314,7 +4314,13 @@
     "CARD_IMPORT_JOB_GONE": "Impor itu kedaluwarsa sebelum selesai. Kirim tautannya lagi.",
     "CARD_IMPORT_UNAVAILABLE": "Layanan impor sedang tidak dapat dijangkau. Coba lagi beberapa menit lagi.",
     "CARD_FILE_INVALID": "Berkas itu bukan hasil ekspor kartu.",
-    "GROUP_CYCLE": "Grup tidak dapat dipindahkan ke dalam dirinya sendiri."
+    "GROUP_CYCLE": "Grup tidak dapat dipindahkan ke dalam dirinya sendiri.",
+    "BLOG_PUBLISHING_DISABLED": "Penerbitan blog belum dikonfigurasi di server ini.",
+    "BLOG_NOT_A_PUBLISHER": "Akun ini tidak diizinkan menerbitkan postingan blog.",
+    "BLOG_SLUG_TAKEN": "Slug ini sudah dipakai oleh postingan bawaan.",
+    "BLOG_PUBLISHER_CHECK_FAILED": "Penerbit tidak dapat diverifikasi saat ini. Coba lagi sebentar lagi.",
+    "BLOG_UNKNOWN_LOCALE": "Bahasa terjemahan tidak dikenal: {locale}",
+    "BLOG_INVALID_DATE": "{date} bukan tanggal kalender yang valid."
   },
   "BADGE": {
     "TOKENS_SERVED": "token dilayani",

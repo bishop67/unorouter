@@ -1,5 +1,11 @@
 import { ParamError } from "@/lib/types";
 
+const blogPublisherIdEntries = (process.env.BLOG_PUBLISHER_IDS ?? "")
+  .split(",")
+  .map((id) => id.trim())
+  .filter(Boolean);
+const isPublisherId = (id: string) => /^[1-9]\d*$/.test(id);
+
 export const serverEnv = {
   sessionSecret: process.env.SESSION_SECRET ?? "",
   // Cookies sealed before a rotation keep verifying until they expire (30d).
@@ -19,6 +25,15 @@ export const serverEnv = {
   tursoUrl: process.env.TURSO_DATABASE_URL,
   tursoToken: process.env.TURSO_AUTH_TOKEN,
   tavilyApiKey: process.env.TAVILY_API_KEY,
+  // Who may write /api/blog/posts. Either is enough; with neither the write
+  // endpoints answer 503. The token is a shared secret sent as a Bearer; the ids
+  // are UnoRouter users verified against the gateway with their access token.
+  blogPublishToken: process.env.BLOG_PUBLISH_TOKEN?.trim() ?? "",
+  blogPublisherIds: blogPublisherIdEntries.filter(isPublisherId).map(Number),
+  // Purge-by-URL after a blog write so the edge stops serving the old page.
+  // Optional: without it a change shows once the edge TTL runs out.
+  cloudflarePurgeToken: process.env.CLOUDFLARE_PURGE_TOKEN ?? "",
+  cloudflareZoneId: process.env.CLOUDFLARE_ZONE_ID ?? "",
   standalone: process.env.STANDALONE,
 } as const;
 
@@ -43,6 +58,21 @@ if (typeof globalThis !== "undefined" && !process.env.NEXT_PHASE) {
     warnings.push("TAVILY_API_KEY (web search disabled)");
   if (!serverEnv.tursoUrl)
     warnings.push("TURSO_DATABASE_URL (database disabled)");
+  if (!serverEnv.blogPublishToken && serverEnv.blogPublisherIds.length === 0)
+    warnings.push(
+      "BLOG_PUBLISH_TOKEN / BLOG_PUBLISHER_IDS (blog publishing disabled)",
+    );
+  const badPublisherIds = blogPublisherIdEntries.filter(
+    (id) => !isPublisherId(id),
+  );
+  if (badPublisherIds.length > 0)
+    console.warn(
+      `[env] BLOG_PUBLISHER_IDS ignores entries that are not user ids: ${badPublisherIds.join(", ")}`,
+    );
+  if (!serverEnv.cloudflarePurgeToken || !serverEnv.cloudflareZoneId)
+    warnings.push(
+      "CLOUDFLARE_PURGE_TOKEN / CLOUDFLARE_ZONE_ID (blog edits wait for the edge TTL)",
+    );
   if (warnings.length > 0)
     console.warn(`[env] Missing optional vars: ${warnings.join(", ")}`);
 }

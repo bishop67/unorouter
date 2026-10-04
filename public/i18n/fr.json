@@ -4314,7 +4314,13 @@
     "CARD_IMPORT_JOB_GONE": "Cet import a expiré avant de se terminer. Renvoie le lien.",
     "CARD_IMPORT_UNAVAILABLE": "Le service d'import est injoignable pour le moment. Réessaie dans quelques minutes.",
     "CARD_FILE_INVALID": "Ce fichier n'est pas un export de carte.",
-    "GROUP_CYCLE": "Un groupe ne peut pas être déplacé dans lui-même."
+    "GROUP_CYCLE": "Un groupe ne peut pas être déplacé dans lui-même.",
+    "BLOG_PUBLISHING_DISABLED": "La publication du blog n'est pas configurée sur ce serveur.",
+    "BLOG_NOT_A_PUBLISHER": "Ce compte n'est pas autorisé à publier des articles de blog.",
+    "BLOG_SLUG_TAKEN": "Un article intégré utilise déjà ce slug.",
+    "BLOG_PUBLISHER_CHECK_FAILED": "Impossible de vérifier l'éditeur pour le moment. Réessayez dans un instant.",
+    "BLOG_UNKNOWN_LOCALE": "Langue de traduction inconnue : {locale}",
+    "BLOG_INVALID_DATE": "{date} n'est pas une date du calendrier."
   },
   "BADGE": {
     "TOKENS_SERVED": "jetons servis",
