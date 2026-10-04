@@ -14,12 +14,26 @@ interface JsonLdProps {
   id?: string;
 }
 
+// JSON.stringify leaves "</script>" intact, and stored blog posts put API input
+// into this tag: escaped, a title can never close the script and inject markup.
+const SCRIPT_UNSAFE: Record<string, string> = {
+  "<": "\\u003c",
+  ">": "\\u003e",
+  "&": "\\u0026",
+  "\u2028": "\\u2028",
+  "\u2029": "\\u2029",
+};
+
 export function JsonLd(props: JsonLdProps) {
+  const json = JSON.stringify(props.data).replace(
+    /[<>&\u2028\u2029]/g,
+    (ch) => SCRIPT_UNSAFE[ch]!,
+  );
   return (
     <script
       key={props.id}
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(props.data) }}
+      dangerouslySetInnerHTML={{ __html: json }}
       suppressHydrationWarning
     />
   );
