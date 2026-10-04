@@ -3,4 +3,5 @@
 // the server owns and migrates. The chat tables in ./shared exist ONLY in the
 // browser's OPFS database and must never be re-exported here: doing so makes
 // editing any chat table emit a destructive Turso migration.
+export * from "./blog";
 export * from "./tester";

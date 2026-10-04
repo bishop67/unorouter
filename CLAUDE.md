@@ -1,6 +1,6 @@
 > **Scope:** ONLY rules, invariants, load-bearing pairs and traps invisible at the call site. Not a tour: open the file. Where the code already comments the trap, one line here. When a change makes a rule wrong, fix it in the same commit.
 
-Next.js 16 + Elysia BFF over our `new-api` fork. Local-first: one SQLocal/OPFS DB per device in the browser is the SOLE copy of chat/RP state; Turso holds only the model-tester rankings. "Sync" means atom<->local DB. Never add a server-side mirror, a `/sync` route, a server context cache, or a retry that expects the server to hold context.
+Next.js 16 + Elysia BFF over our `new-api` fork. Local-first: one SQLocal/OPFS DB per device in the browser is the SOLE copy of chat/RP state; Turso holds only the model-tester rankings and API-published blog posts. "Sync" means atom<->local DB. Never add a server-side mirror, a `/sync` route, a server context cache, or a retry that expects the server to hold context.
 
 ## Dev
 

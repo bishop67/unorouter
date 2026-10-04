@@ -8,6 +8,7 @@ import type {
   requestLogs,
   samplingPresets,
 } from "./shared";
+import type { blogPosts } from "./blog";
 import type { testerProbes, testerTests } from "./tester";
 import type { customProviders, jsPlugins } from "./client";
 
@@ -23,3 +24,4 @@ export type CustomProviderRow = typeof customProviders.$inferSelect;
 export type JsPluginRow = typeof jsPlugins.$inferSelect;
 export type TesterTestRow = typeof testerTests.$inferSelect;
 export type TesterProbeRow = typeof testerProbes.$inferSelect;
+export type BlogPostRow = typeof blogPosts.$inferSelect;
