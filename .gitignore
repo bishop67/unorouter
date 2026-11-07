@@ -63,3 +63,7 @@ indexnow.log
 .openapi-types/
 .tmp-screenshots
 .refactor/
+
+# Claude
+CLAUDE.md
+CLAUDE.local.md
